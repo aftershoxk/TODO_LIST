@@ -10,7 +10,7 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o todo-app ./cmd/server
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o todo-app .
 
 # ===== STAGE 2: runtime =====
 FROM debian:bookworm-slim
