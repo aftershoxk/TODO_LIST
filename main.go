@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"os"
 	"todo_list/pkg/api"
@@ -35,8 +36,13 @@ func main() {
 	path := DBPath()
 	err := db.Init(path)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
+	defer func() {
+		if err := db.Close(); err != nil {
+			log.Println("error closing database:", err)
+		}
+	}()
 
 	// файл-сервер
 	fileHandler := http.FileServer(http.Dir("./web"))
@@ -47,8 +53,9 @@ func main() {
 
 	// запуск сервера
 	port := GetPort()
+	log.Printf("server starting on %s", port)
 	err = http.ListenAndServe(port, nil)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }

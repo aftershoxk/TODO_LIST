@@ -8,14 +8,14 @@ import (
 func deleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
-		writeError(w, 400, "id is not defined")
+		writeError(w, http.StatusBadRequest, "id is not defined")
 		return
 	}
 	err := db.DeleteTask(id)
 	if err != nil {
-		writeError(w, 400, err.Error())
+		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	writeJSON(w, 200, struct{}{})
+	writeJSON(w, http.StatusOK, struct{}{})
 }

@@ -10,9 +10,7 @@ const DateFormat = "20060102"
 
 func nextDayHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write([]byte("method not allowed"))
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
 
@@ -22,9 +20,7 @@ func nextDayHandler(w http.ResponseWriter, r *http.Request) {
 	var nowTime time.Time
 
 	if dateStr == "" || repeatStr == "" {
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("missing date or repeat"))
+		writeError(w, http.StatusBadRequest, "missing date or repeat")
 		return
 	}
 	if nowStr == "" {
@@ -33,21 +29,15 @@ func nextDayHandler(w http.ResponseWriter, r *http.Request) {
 		var err error
 		nowTime, err = time.Parse(DateFormat, nowStr)
 		if err != nil {
-			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("invalid now format"))
+			writeError(w, http.StatusBadRequest, "invalid now format")
 			return
 		}
 	}
 
 	result, err := n.NextDate(nowTime, dateStr, repeatStr)
 	if err != nil {
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(result))
+	writeJSON(w, http.StatusOK, result)
 }

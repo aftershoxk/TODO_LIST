@@ -28,24 +28,24 @@ type Claims struct {
 
 func signinHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		writeError(w, 405, "method not allowed")
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
 
 	passEnv := os.Getenv("TODO_PASSWORD")
 	if passEnv == "" {
-		writeError(w, 400, "password auth disabled")
+		writeError(w, http.StatusBadRequest, "password auth disabled")
 		return
 	}
 
 	var req signinRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		writeError(w, 400, "invalid json")
+		writeError(w, http.StatusBadRequest, "invalid json")
 		return
 	}
 
 	if req.Password != passEnv {
-		writeJSON(w, 401, signinResponse{
+		writeJSON(w, http.StatusUnauthorized, signinResponse{
 			Error: "incorrect password",
 		})
 		return
@@ -62,11 +62,11 @@ func signinHandler(w http.ResponseWriter, r *http.Request) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signed, err := token.SignedString([]byte(passEnv))
 	if err != nil {
-		writeError(w, 500, err.Error())
+		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	writeJSON(w, 200, signinResponse{
+	writeJSON(w, http.StatusOK, signinResponse{
 		Token: signed,
 	})
 }

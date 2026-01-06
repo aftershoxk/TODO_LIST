@@ -10,28 +10,28 @@ func updateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	var task db.Task
 	err := json.NewDecoder(r.Body).Decode(&task)
 	if err != nil {
-		writeError(w, 400, err.Error())
+		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	if task.ID == "" {
-		writeError(w, 404, "id is nil")
+		writeError(w, http.StatusNotFound, "id is nil")
 		return
 	}
 	if task.Title == "" {
-		writeError(w, 400, "invalid data")
+		writeError(w, http.StatusBadRequest, "invalid data")
 		return
 	}
 
 	err = checkDate(&task)
 	if err != nil {
-		writeError(w, 400, "invalid data")
+		writeError(w, http.StatusBadRequest, "invalid data")
 		return
 	}
 
 	err = db.UpdateTask(&task)
 	if err != nil {
-		writeError(w, 404, err.Error())
+		writeError(w, http.StatusNotFound, err.Error())
 		return
 	}
-	writeJSON(w, 200, db.Task{})
+	writeJSON(w, http.StatusOK, db.Task{})
 }

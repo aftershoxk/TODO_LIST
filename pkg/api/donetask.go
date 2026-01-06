@@ -9,31 +9,31 @@ import (
 
 func doneTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		writeError(w, 405, "error: method not allowed")
+		writeError(w, http.StatusMethodNotAllowed, "error: method not allowed")
 		return
 	}
 
 	id := r.URL.Query().Get("id")
 	if id == "" {
-		writeError(w, 400, "error: invalid data")
+		writeError(w, http.StatusBadRequest, "error: invalid data")
 		return
 	}
 
 	task, err := db.GetTask(id)
 	if err != nil {
-		writeError(w, 400, err.Error())
+		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	if task.Repeat == "" {
 		err = db.DeleteTask(id)
 		if err != nil {
-			writeError(w, 400, err.Error())
+			writeError(w, http.StatusBadRequest, err.Error())
 			return
 		}
 	} else {
 		now, err := time.Parse(DateFormat, task.Date)
 		if err != nil {
-			writeError(w, 400, err.Error())
+			writeError(w, http.StatusBadRequest, err.Error())
 			return
 		}
 		today := time.Date(
@@ -45,14 +45,14 @@ func doneTaskHandler(w http.ResponseWriter, r *http.Request) {
 		)
 		next, err := rep.NextDate(today, task.Date, task.Repeat)
 		if err != nil {
-			writeError(w, 400, err.Error())
+			writeError(w, http.StatusBadRequest, err.Error())
 			return
 		}
 		err = db.UpdateDate(id, next)
 		if err != nil {
-			writeError(w, 400, err.Error())
+			writeError(w, http.StatusBadRequest, err.Error())
 			return
 		}
 	}
-	writeJSON(w, 200, struct{}{})
+	writeJSON(w, http.StatusOK, struct{}{})
 }

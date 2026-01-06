@@ -5,28 +5,28 @@ import (
 	"todo_list/pkg/db"
 )
 
+const tasksLimit = 50
+
 type TasksResp struct {
 	Tasks []*db.Task `json:"tasks"`
 }
 
 func tasksHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		writeError(w, 405, "method not allowed")
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
 
-	limit := 50
-
 	search := r.URL.Query().Get("search")
 
-	tasks, err := db.Tasks(limit, search)
+	tasks, err := db.Tasks(tasksLimit, search)
 	if err != nil {
-		writeError(w, 400, err.Error())
+		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	if tasks == nil {
 		tasks = make([]*db.Task, 0)
 	}
 
-	writeJSON(w, 200, TasksResp{Tasks: tasks})
+	writeJSON(w, http.StatusOK, TasksResp{Tasks: tasks})
 }

@@ -19,6 +19,6 @@ func taskHandler(w http.ResponseWriter, r *http.Request) {
 		deleteTaskHandler(w, r)
 		return
 	default:
-		writeError(w, 405, "Method error")
+		writeError(w, http.StatusMethodNotAllowed, "Method error")
 	}
 }

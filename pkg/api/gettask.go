@@ -8,15 +8,15 @@ import (
 func getTaskHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
-		writeError(w, 400, "id is not defined")
+		writeError(w, http.StatusBadRequest, "id is not defined")
 		return
 	}
 
 	result, err := db.GetTask(id)
 	if err != nil {
-		writeError(w, 404, err.Error())
+		writeError(w, http.StatusNotFound, err.Error())
 		return
 	}
 
-	writeJSON(w, 200, result)
+	writeJSON(w, http.StatusOK, result)
 }
